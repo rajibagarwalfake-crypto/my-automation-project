@@ -37,22 +37,59 @@ public class in_the_background {
         options.addArguments("--window-size=1920,1080");
 
         WebDriver driver = new ChromeDriver(options);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(45)); // increased timeout
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
 
         try {
-            // Go directly to Naukri login page
             driver.get("https://www.naukri.com/nlogin/login");
-            System.out.println("Navigated to Naukri Login.");
+            System.out.println("Page loaded. Title: " + driver.getTitle());
 
-            // ----- USERNAME: use placeholder text (most stable) -----
-            WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.xpath("//input[@placeholder='Enter your active Email ID / Username']")));
+            // ----- FIND USERNAME FIELD USING MULTIPLE STRATEGIES -----
+            WebElement usernameField = null;
+            String[] userSelectors = {
+                "//input[contains(@placeholder, 'Email')]",
+                "//input[contains(@placeholder, 'Username')]",
+                "//input[@name='username']",
+                "//input[@id='usernameField']",
+                "//input[@type='text'][@autocomplete='username']",
+                "//input[@type='email']"
+            };
+            for (String selector : userSelectors) {
+                try {
+                    usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(selector)));
+                    System.out.println("Found username with: " + selector);
+                    break;
+                } catch (Exception e) {
+                    // continue to next selector
+                }
+            }
+
+            if (usernameField == null) {
+                throw new Exception("Could not find username field.");
+            }
             usernameField.sendKeys(username);
             System.out.println("Username entered.");
 
-            // ----- PASSWORD: use placeholder text -----
-            WebElement passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                    By.xpath("//input[@placeholder='Enter your password']")));
+            // ----- FIND PASSWORD FIELD -----
+            WebElement passwordField = null;
+            String[] passSelectors = {
+                "//input[contains(@placeholder, 'Password')]",
+                "//input[@name='password']",
+                "//input[@id='passwordField']",
+                "//input[@type='password']"
+            };
+            for (String selector : passSelectors) {
+                try {
+                    passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(selector)));
+                    System.out.println("Found password with: " + selector);
+                    break;
+                } catch (Exception e) {
+                    // continue
+                }
+            }
+
+            if (passwordField == null) {
+                throw new Exception("Could not find password field.");
+            }
             passwordField.sendKeys(password);
             System.out.println("Password entered.");
 
@@ -62,19 +99,19 @@ public class in_the_background {
             loginButton.click();
             System.out.println("Login button clicked.");
 
-            // Wait for login to complete and go to profile page
-            Thread.sleep(5000); // give time for session to set
+            // Wait for login and navigate to profile
+            Thread.sleep(5000);
             driver.get("https://www.naukri.com/mnjuser/profile");
             System.out.println("Navigated to Profile Dashboard.");
 
-            // ----- UPLOAD RESUME (file input) -----
+            // ----- UPLOAD RESUME -----
             WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(
                     By.xpath("//input[@type='file']")));
             fileInput.sendKeys(resumePath);
             System.out.println("Resume file path sent.");
 
-            Thread.sleep(6000); // wait for upload to process
-            System.out.println("SUCCESS: Resume refreshed successfully!");
+            Thread.sleep(6000);
+            System.out.println("SUCCESS: Resume refreshed!");
 
         } catch (Exception e) {
             System.err.println("AUTOMATION FAILED: " + e.getMessage());
