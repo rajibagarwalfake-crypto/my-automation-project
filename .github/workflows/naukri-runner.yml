@@ -23,5 +23,6 @@ jobs:
       env:
         NAUKRI_USERNAME: ${{ secrets.NAUKRI_USERNAME }}
         NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
+       
       run: |
-        mvn compile exec:java -Dexec.mainClass="com.nauklri.in_the_background"
+        mvn compile exec:java -Dexec.mainClass="com.nauklri.in_the_background" -e -X
