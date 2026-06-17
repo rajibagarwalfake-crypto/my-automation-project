@@ -15,29 +15,15 @@
     </properties>
 
     <dependencies>
-        <!-- Selenium Java Dependencies -->
         <dependency>
             <groupId>org.openqa.selenium</groupId>
             <artifactId>selenium-java</artifactId>
             <version>4.16.1</version>
         </dependency>
-
-        <!-- WebDriverManager for Headless Chrome Configuration -->
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
             <version>5.6.3</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <!-- Standard Compiler Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
-            </plugin>
-        </plugins>
-    </build>
 </project>
