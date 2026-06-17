@@ -18,7 +18,7 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: 'maven'
+        cache: 'maven'   # This caches dependencies for faster runs[reference:2]
 
     - name: Execute Java Code
       env:
