@@ -18,18 +18,11 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-
-    - name: Download Selenium Tools Directly
-      run: |
-        wget https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-server/4.0.0-alpha-2/selenium-server-4.0.0-alpha-2.jar
-
-    - name: Compile Java Code
-      run: |
-        javac -cp selenium-server-4.0.0-alpha-2.jar src/main/java/com/nauklri/in_the_background.java
+        cache: 'maven'
 
     - name: Execute Java Code
       env:
         NAUKRI_USERNAME: ${{ secrets.NAUKRI_USERNAME }}
         NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
       run: |
-        java -cp selenium-server-4.0.0-alpha-2.jar:src/main/java com.nauklri.in_the_background
+        mvn clean compile exec:java
