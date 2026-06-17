@@ -1,9 +1,9 @@
-name: Hourly Naukri Automation
+name: Hourly Indian Business Hours Naukri Automation
 
 on:
   schedule:
-    - cron: '0 * * * *' # Tells GitHub to trigger this every single hour automatically
-  workflow_dispatch: # Gives you a manual button to test it anytime
+    - cron: '0 2-11 * * *'
+  workflow_dispatch: 
 
 jobs:
   run-script:
@@ -18,11 +18,12 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+        cache: 'maven'
 
-    - name: Execute Java Code
+    - name: Clear and Execute Java Code
       env:
         NAUKRI_USERNAME: ${{ secrets.NAUKRI_USERNAME }}
         NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
-       
+      # This cleans out old dependency cache configurations and forces a fresh run
       run: |
-        mvn compile exec:java -Dexec.mainClass="com.nauklri.in_the_background" -e -X
+        mvn clean compile exec:java -Dexec.mainClass="com.nauklri.in_the_background"
