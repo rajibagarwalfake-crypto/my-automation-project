@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.naukri</groupId>
+    <groupId>com.nauklri</groupId>
     <artifactId>my-automation-project</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -15,37 +15,28 @@
     </properties>
 
     <dependencies>
-        <!-- Selenium Java Core -->
+        <!-- Selenium Java Dependencies -->
         <dependency>
             <groupId>org.openqa.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>4.18.1</version>
+            <version>4.16.1</version>
         </dependency>
 
-        <!-- WebDriverManager to handle Chrome binary in cloud -->
+        <!-- WebDriverManager for Headless Chrome Configuration -->
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
-            <version>5.7.0</version>
+            <version>5.6.3</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Compiler Plugin -->
+            <!-- Standard Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
-            </plugin>
-            <!-- Exec Plugin to run the main class -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.1.1</version>
-                <configuration>
-                    <mainClass>com.nauklri.in_the_background</mainClass>
-                </configuration>
             </plugin>
         </plugins>
     </build>
