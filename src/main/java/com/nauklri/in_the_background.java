@@ -31,110 +31,65 @@ public class in_the_background {
 
         WebDriverManager.chromedriver().setup();
 
-        // --- ENHANCED CHROME OPTIONS TO BYPASS "ACCESS DENIED" ---
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--disable-gpu");
+        options.addArguments("--window-size=1920,1080");
         options.addArguments("--disable-blink-features=AutomationControlled");
         options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36");
-        options.addArguments("--accept-lang=en-US,en;q=0.9");
-        options.addArguments("--disable-web-security");
-        options.addArguments("--disable-features=IsolateOrigins,site-per-process");
-        options.addArguments("--window-size=1920,1080");
-        
-        // Exclude automation flags (makes browser look normal)
         options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
         options.setExperimentalOption("useAutomationExtension", false);
 
         WebDriver driver = new ChromeDriver(options);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 
         try {
-            // Small delay to let browser start properly
-            Thread.sleep(2000);
+            // STEP 1: Go to Homepage (not the direct login page)
+            driver.get("https://www.naukri.com/");
+            System.out.println("Navigated to Homepage. Title: " + driver.getTitle());
 
-            // Navigate to Naukri
-            driver.get("https://www.naukri.com/nlogin/login");
-            System.out.println("Page loaded. Title: " + driver.getTitle());
+            Thread.sleep(3000); // Wait for page to load fully
 
-            // If still Access Denied, try with a different URL
-            if (driver.getTitle().contains("Access Denied")) {
-                System.out.println("Access Denied detected. Trying alternative URL...");
-                driver.get("https://www.naukri.com/");
-                Thread.sleep(3000);
-                driver.get("https://www.naukri.com/nlogin/login");
-                System.out.println("Re-tried login page. Title: " + driver.getTitle());
-            }
-
-            // ----- Username (tries multiple selectors) -----
-            WebElement usernameField = null;
-            String[] userSelectors = {
-                "//input[contains(@placeholder, 'Email')]",
-                "//input[contains(@placeholder, 'Username')]",
-                "//input[@name='username']",
-                "//input[@id='usernameField']",
-                "//input[@type='text']",
-                "//input[@type='email']"
-            };
-            for (String selector : userSelectors) {
+            // STEP 2: Click the "Login" button on the homepage
+            WebElement loginButton = null;
+            try {
+                loginButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("login_Layer")));
+            } catch (Exception e) {
                 try {
-                    usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(selector)));
-                    System.out.println("Found username with: " + selector);
-                    break;
-                } catch (Exception e) {
-                    // try next selector
+                    loginButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("a[title='Jobseeker Login']")));
+                } catch (Exception e2) {
+                    loginButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//a[contains(text(),'Login')]")));
                 }
             }
-            if (usernameField == null) {
-                // Dump page source for debugging (optional)
-                // System.out.println(driver.getPageSource());
-                throw new Exception("Could not find username field.");
-            }
+            loginButton.click();
+            System.out.println("Login button clicked. Looking for modal...");
+
+            // STEP 3: Fill the Login Modal
+            WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("usernameField")));
             usernameField.sendKeys(username);
             System.out.println("Username entered.");
 
-            // ----- Password -----
-            WebElement passwordField = null;
-            String[] passSelectors = {
-                "//input[contains(@placeholder, 'Password')]",
-                "//input[@name='password']",
-                "//input[@id='passwordField']",
-                "//input[@type='password']"
-            };
-            for (String selector : passSelectors) {
-                try {
-                    passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(selector)));
-                    System.out.println("Found password with: " + selector);
-                    break;
-                } catch (Exception e) {
-                    // try next
-                }
-            }
-            if (passwordField == null) throw new Exception("Password field not found");
+            WebElement passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("passwordField")));
             passwordField.sendKeys(password);
             System.out.println("Password entered.");
 
-            // ----- Login Button -----
-            WebElement loginButton = wait.until(ExpectedConditions.elementToBeClickable(
-                    By.xpath("//button[@type='submit']")));
-            loginButton.click();
-            System.out.println("Login button clicked.");
+            WebElement submitButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//button[@type='submit']")));
+            submitButton.click();
+            System.out.println("Login form submitted.");
 
-            // Wait for login and go to profile
+            // STEP 4: Go to Profile page
             Thread.sleep(5000);
             driver.get("https://www.naukri.com/mnjuser/profile");
             System.out.println("Navigated to Profile Dashboard.");
 
-            // ----- Upload Resume -----
-            WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(
-                    By.xpath("//input[@type='file']")));
+            // STEP 5: Upload Resume
+            WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@type='file']")));
             fileInput.sendKeys(resumePath);
             System.out.println("Resume file path sent.");
 
-            Thread.sleep(6000);
-            System.out.println("SUCCESS: Resume refreshed!");
+            Thread.sleep(5000);
+            System.out.println("✅ SUCCESS: Resume refreshed successfully!");
 
         } catch (Exception e) {
             System.err.println("AUTOMATION FAILED: " + e.getMessage());
@@ -142,8 +97,7 @@ public class in_the_background {
             System.exit(1);
         } finally {
             driver.quit();
-            System.out.println("Browser closed.");
-            System.out.println("=== Script finished. Exiting. ===");
+            System.out.println("Browser closed. Script finished.");
         }
     }
 }
