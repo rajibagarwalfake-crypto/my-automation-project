@@ -19,9 +19,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Clear and Execute Java Code
+    - name: Download Selenium Tools Directly
+      run: |
+        wget https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-server/4.16.1/selenium-server-4.16.1.jar
+
+    - name: Execute Java Code
       env:
         NAUKRI_USERNAME: ${{ secrets.NAUKRI_USERNAME }}
         NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
       run: |
-        mvn clean compile exec:java -Dexec.mainClass="com.nauklri.in_the_background"
+        java -cp selenium-server-4.16.1.jar src/main/java/com/nauklri/in_the_background.java
