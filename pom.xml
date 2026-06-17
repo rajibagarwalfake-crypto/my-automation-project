@@ -15,15 +15,31 @@
     </properties>
 
     <dependencies>
+        <!-- CORRECTED ID: org.seleniumhq.selenium -->
         <dependency>
-            <groupId>org.openqa.selenium</groupId>
+            <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
             <version>4.16.1</version>
         </dependency>
+
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
             <version>5.6.3</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Exec Plugin to run your script easily -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <mainClass>com.nauklri.in_the_background</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
