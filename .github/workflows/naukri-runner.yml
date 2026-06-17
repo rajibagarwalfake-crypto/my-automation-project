@@ -1,0 +1,27 @@
+name: Hourly Naukri Automation
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Tells GitHub to trigger this every single hour automatically
+  workflow_dispatch: # Gives you a manual button to test it anytime
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Java JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Execute Java Code
+      env:
+        NAUKRI_USERNAME: ${{ secrets.NAUKRI_USERNAME }}
+        NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
+      run: |
+        mvn compile exec:java -Dexec.mainClass="com.nauklri.in_the_background"
