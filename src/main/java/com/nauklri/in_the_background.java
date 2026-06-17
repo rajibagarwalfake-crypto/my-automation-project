@@ -15,73 +15,94 @@ import java.time.Duration;
 public class in_the_background {
 
     public static void main(String[] args) {
-        // 1. Fetch credentials securely from GitHub environment variables
         String username = System.getenv("NAUKRI_USERNAME");
         String password = System.getenv("NAUKRI_PASSWORD");
-        
-        // 2. Locate the resume file dynamically in the GitHub workspace root
+
         File resumeFile = new File("resume.docx");
         String resumePath = resumeFile.getAbsolutePath();
 
         System.out.println("=== Starting Naukri Profile Sync ===");
-        System.out.println("Checking resume file path: " + resumePath);
-        
+        System.out.println("Resume path: " + resumePath);
+
         if (!resumeFile.exists()) {
-            System.err.println("ERROR: resume.docx not found in root directory!");
+            System.err.println("ERROR: resume.docx not found in root!");
             System.exit(1);
         }
 
-        // 3. Set up Chrome options for Headless Execution (Crucial for GitHub Actions)
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless=new"); // Runs completely in background without a screen
+        options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--window-size=1920,1080");
 
         WebDriver driver = new ChromeDriver(options);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 
         try {
-            // 4. Navigate to Naukri Login
+            // Navigate to login page
             driver.get("https://www.naukri.com/nlogin/login");
-            System.out.println("Navigated to Naukri Login Page.");
+            System.out.println("Navigated to Naukri Login.");
 
-            // 5. Input Username
-            WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("usernameField")));
+            // ----- TRY MULTIPLE SELECTORS FOR USERNAME FIELD -----
+            WebElement usernameField = null;
+            try {
+                usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("usernameField")));
+            } catch (Exception e) {
+                System.out.println("ID 'usernameField' not found, trying name attribute...");
+                try {
+                    usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("username")));
+                } catch (Exception e2) {
+                    System.out.println("Name 'username' not found, trying CSS selector...");
+                    usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                            By.cssSelector("input[type='text'][placeholder*='Email']")));
+                }
+            }
             usernameField.sendKeys(username);
+            System.out.println("Username entered.");
 
-            // 6. Input Password
-            WebElement passwordField = driver.findElement(By.id("passwordField"));
+            // ----- PASSWORD FIELD (try multiple) -----
+            WebElement passwordField = null;
+            try {
+                passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("passwordField")));
+            } catch (Exception e) {
+                try {
+                    passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("password")));
+                } catch (Exception e2) {
+                    passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                            By.cssSelector("input[type='password']")));
+                }
+            }
             passwordField.sendKeys(password);
+            System.out.println("Password entered.");
 
-            // 7. Click Login
-            WebElement loginButton = driver.findElement(By.xpath("//button[@type='submit']"));
+            // ----- LOGIN BUTTON -----
+            WebElement loginButton = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//button[@type='submit']")));
             loginButton.click();
-            System.out.println("Login form submitted.");
+            System.out.println("Login button clicked.");
 
-            // 8. Go directly to View Profile page
+            // Wait for login to complete and navigate to profile
+            Thread.sleep(3000);
             driver.get("https://www.naukri.com/mnjuser/profile");
             System.out.println("Navigated to Profile Dashboard.");
 
-            // 9. Find the invisible file upload input element and send the path
-            // (Naukri accepts file paths directly via standard <input type="file"> interaction)
-            WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@type='file']")));
+            // ----- UPLOAD RESUME -----
+            WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//input[@type='file']")));
             fileInput.sendKeys(resumePath);
-            System.out.println("Resume file path sent successfully.");
+            System.out.println("Resume file path sent.");
 
-            // 10. Wait briefly for the UI to register the successful upload message toast
-            Thread.sleep(5000); 
-            System.out.println("SUCCESS: Resume refreshed successfully at the top of recruiter queues!");
+            Thread.sleep(5000);
+            System.out.println("SUCCESS: Resume refreshed!");
 
         } catch (Exception e) {
             System.err.println("AUTOMATION FAILED: " + e.getMessage());
             e.printStackTrace();
-            System.exit(1); // Tells GitHub Action that the job failed so you can get a red cross notification
+            System.exit(1);
         } finally {
-            // Close down the browser engine safely
             driver.quit();
-            System.out.println("=== Browser Closed. Automation finished ===");
+            System.out.println("Browser closed.");
         }
     }
 }
