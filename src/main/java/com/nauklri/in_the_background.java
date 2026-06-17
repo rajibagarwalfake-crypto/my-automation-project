@@ -30,27 +30,52 @@ public class in_the_background {
         }
 
         WebDriverManager.chromedriver().setup();
+
+        // --- ENHANCED CHROME OPTIONS TO BYPASS "ACCESS DENIED" ---
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--disable-gpu");
+        options.addArguments("--disable-blink-features=AutomationControlled");
+        options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36");
+        options.addArguments("--accept-lang=en-US,en;q=0.9");
+        options.addArguments("--disable-web-security");
+        options.addArguments("--disable-features=IsolateOrigins,site-per-process");
         options.addArguments("--window-size=1920,1080");
+        
+        // Exclude automation flags (makes browser look normal)
+        options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+        options.setExperimentalOption("useAutomationExtension", false);
 
         WebDriver driver = new ChromeDriver(options);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(60));
 
         try {
+            // Small delay to let browser start properly
+            Thread.sleep(2000);
+
+            // Navigate to Naukri
             driver.get("https://www.naukri.com/nlogin/login");
             System.out.println("Page loaded. Title: " + driver.getTitle());
 
-            // ----- FIND USERNAME FIELD USING MULTIPLE STRATEGIES -----
+            // If still Access Denied, try with a different URL
+            if (driver.getTitle().contains("Access Denied")) {
+                System.out.println("Access Denied detected. Trying alternative URL...");
+                driver.get("https://www.naukri.com/");
+                Thread.sleep(3000);
+                driver.get("https://www.naukri.com/nlogin/login");
+                System.out.println("Re-tried login page. Title: " + driver.getTitle());
+            }
+
+            // ----- Username (tries multiple selectors) -----
             WebElement usernameField = null;
             String[] userSelectors = {
                 "//input[contains(@placeholder, 'Email')]",
                 "//input[contains(@placeholder, 'Username')]",
                 "//input[@name='username']",
                 "//input[@id='usernameField']",
-                "//input[@type='text'][@autocomplete='username']",
+                "//input[@type='text']",
                 "//input[@type='email']"
             };
             for (String selector : userSelectors) {
@@ -59,17 +84,18 @@ public class in_the_background {
                     System.out.println("Found username with: " + selector);
                     break;
                 } catch (Exception e) {
-                    // continue to next selector
+                    // try next selector
                 }
             }
-
             if (usernameField == null) {
+                // Dump page source for debugging (optional)
+                // System.out.println(driver.getPageSource());
                 throw new Exception("Could not find username field.");
             }
             usernameField.sendKeys(username);
             System.out.println("Username entered.");
 
-            // ----- FIND PASSWORD FIELD -----
+            // ----- Password -----
             WebElement passwordField = null;
             String[] passSelectors = {
                 "//input[contains(@placeholder, 'Password')]",
@@ -83,28 +109,25 @@ public class in_the_background {
                     System.out.println("Found password with: " + selector);
                     break;
                 } catch (Exception e) {
-                    // continue
+                    // try next
                 }
             }
-
-            if (passwordField == null) {
-                throw new Exception("Could not find password field.");
-            }
+            if (passwordField == null) throw new Exception("Password field not found");
             passwordField.sendKeys(password);
             System.out.println("Password entered.");
 
-            // ----- LOGIN BUTTON -----
+            // ----- Login Button -----
             WebElement loginButton = wait.until(ExpectedConditions.elementToBeClickable(
                     By.xpath("//button[@type='submit']")));
             loginButton.click();
             System.out.println("Login button clicked.");
 
-            // Wait for login and navigate to profile
+            // Wait for login and go to profile
             Thread.sleep(5000);
             driver.get("https://www.naukri.com/mnjuser/profile");
             System.out.println("Navigated to Profile Dashboard.");
 
-            // ----- UPLOAD RESUME -----
+            // ----- Upload Resume -----
             WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(
                     By.xpath("//input[@type='file']")));
             fileInput.sendKeys(resumePath);
@@ -120,6 +143,7 @@ public class in_the_background {
         } finally {
             driver.quit();
             System.out.println("Browser closed.");
+            System.out.println("=== Script finished. Exiting. ===");
         }
     }
 }
