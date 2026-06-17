@@ -15,7 +15,7 @@
     </properties>
 
     <dependencies>
-        <!-- CORRECTED ID: org.seleniumhq.selenium -->
+        <!-- ✅ CORRECT Group ID: org.seleniumhq.selenium -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
@@ -31,7 +31,6 @@
 
     <build>
         <plugins>
-            <!-- Exec Plugin to run your script easily -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
