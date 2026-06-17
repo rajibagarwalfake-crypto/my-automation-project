@@ -18,12 +18,10 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: 'maven'
 
     - name: Clear and Execute Java Code
       env:
         NAUKRI_USERNAME: ${{ secrets.NAUKRI_USERNAME }}
         NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
-      # This cleans out old dependency cache configurations and forces a fresh run
       run: |
         mvn clean compile exec:java -Dexec.mainClass="com.nauklri.in_the_background"
