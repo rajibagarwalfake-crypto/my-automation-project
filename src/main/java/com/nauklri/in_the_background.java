@@ -37,42 +37,22 @@ public class in_the_background {
         options.addArguments("--window-size=1920,1080");
 
         WebDriver driver = new ChromeDriver(options);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(45)); // increased timeout
 
         try {
-            // Navigate to login page
+            // Go directly to Naukri login page
             driver.get("https://www.naukri.com/nlogin/login");
             System.out.println("Navigated to Naukri Login.");
 
-            // ----- TRY MULTIPLE SELECTORS FOR USERNAME FIELD -----
-            WebElement usernameField = null;
-            try {
-                usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("usernameField")));
-            } catch (Exception e) {
-                System.out.println("ID 'usernameField' not found, trying name attribute...");
-                try {
-                    usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("username")));
-                } catch (Exception e2) {
-                    System.out.println("Name 'username' not found, trying CSS selector...");
-                    usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                            By.cssSelector("input[type='text'][placeholder*='Email']")));
-                }
-            }
+            // ----- USERNAME: use placeholder text (most stable) -----
+            WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.xpath("//input[@placeholder='Enter your active Email ID / Username']")));
             usernameField.sendKeys(username);
             System.out.println("Username entered.");
 
-            // ----- PASSWORD FIELD (try multiple) -----
-            WebElement passwordField = null;
-            try {
-                passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("passwordField")));
-            } catch (Exception e) {
-                try {
-                    passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("password")));
-                } catch (Exception e2) {
-                    passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(
-                            By.cssSelector("input[type='password']")));
-                }
-            }
+            // ----- PASSWORD: use placeholder text -----
+            WebElement passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.xpath("//input[@placeholder='Enter your password']")));
             passwordField.sendKeys(password);
             System.out.println("Password entered.");
 
@@ -82,19 +62,19 @@ public class in_the_background {
             loginButton.click();
             System.out.println("Login button clicked.");
 
-            // Wait for login to complete and navigate to profile
-            Thread.sleep(3000);
+            // Wait for login to complete and go to profile page
+            Thread.sleep(5000); // give time for session to set
             driver.get("https://www.naukri.com/mnjuser/profile");
             System.out.println("Navigated to Profile Dashboard.");
 
-            // ----- UPLOAD RESUME -----
+            // ----- UPLOAD RESUME (file input) -----
             WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(
                     By.xpath("//input[@type='file']")));
             fileInput.sendKeys(resumePath);
             System.out.println("Resume file path sent.");
 
-            Thread.sleep(5000);
-            System.out.println("SUCCESS: Resume refreshed!");
+            Thread.sleep(6000); // wait for upload to process
+            System.out.println("SUCCESS: Resume refreshed successfully!");
 
         } catch (Exception e) {
             System.err.println("AUTOMATION FAILED: " + e.getMessage());
