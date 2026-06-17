@@ -1,105 +1,50 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>inetbanking</groupId>
-    <artifactId>inetbanking</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    
+
+    <groupId>com.naukri</groupId>
+    <artifactId>my-automation-project</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
     <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <!-- Unified dependency versions -->
-        <selenium.version>4.11.0</selenium.version>
-        <webdrivermanager.version>5.6.3</webdrivermanager.version>
-        <testng.version>7.8.0</testng.version>
     </properties>
-    
+
     <dependencies>
-        <!-- ExtentReports -->
+        <!-- Selenium Java Core -->
         <dependency>
-            <groupId>com.aventstack</groupId>
-            <artifactId>extentreports</artifactId>
-            <version>5.1.0</version>
-        </dependency>
-        
-        <!-- Apache Commons -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.13.0</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.13.0</version>
-        </dependency>
-        
-        <!-- Testing -->
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>${testng.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <scope>test</scope>
-        </dependency>
-        
-        <!-- Logging -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.23.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>2.0.12</version>
-        </dependency>
-        
-        <!-- Selenium -->
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
+            <groupId>org.openqa.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>${selenium.version}</version>
+            <version>4.18.1</version>
         </dependency>
+
+        <!-- WebDriverManager to handle Chrome binary in cloud -->
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
-            <version>${webdrivermanager.version}</version>
-        </dependency>
-        
-        <!-- Selenium DevTools - Optional (remove if not needed) -->
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-devtools-v115</artifactId>
-            <version>${selenium.version}</version>
-            <scope>test</scope>
+            <version>5.7.0</version>
         </dependency>
     </dependencies>
-    
+
     <build>
         <plugins>
+            <!-- Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                </configuration>
             </plugin>
+            <!-- Exec Plugin to run the main class -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.1</version>
                 <configuration>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
+                    <mainClass>com.nauklri.in_the_background</mainClass>
                 </configuration>
             </plugin>
         </plugins>
